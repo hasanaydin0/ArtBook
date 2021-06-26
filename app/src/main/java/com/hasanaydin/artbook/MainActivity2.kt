@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -30,6 +31,46 @@ class MainActivity2 : AppCompatActivity() {
         binding = ActivityMain2Binding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        val intent = intent
+        val info = intent.getStringExtra("info")
+        if(info.equals("new")){
+            binding.artText.setText("")
+            binding.artistText.setText("")
+            binding.yearText.setText("")
+            binding.button.visibility = View.VISIBLE
+
+            val selectedImageBackground = BitmapFactory.decodeResource(applicationContext.resources,R.drawable.group)
+            binding.imageView.setImageBitmap(selectedImageBackground)
+
+        }else{
+            binding.button.visibility = View.INVISIBLE
+            val selectedId = intent.getIntExtra("id",1)
+
+            val database = this.openOrCreateDatabase("Arts", MODE_PRIVATE,null)
+
+            val cursor = database.rawQuery("SELECT * FROM arts WHERE id = ?", arrayOf(selectedId.toString()))
+
+            val artnameIx = cursor.getColumnIndex("artname")
+            val artistnameIx = cursor.getColumnIndex("artistname")
+            val yearIx = cursor.getColumnIndex("year")
+            val imageIx = cursor.getColumnIndex("image")
+
+            while (cursor.moveToNext()){
+
+                binding.artText.setText(cursor.getString(artnameIx))
+                binding.artistText.setText(cursor.getString(artistnameIx))
+                binding.yearText.setText(cursor.getString(yearIx))
+
+                val byteArray = cursor.getBlob(imageIx)
+                val bitmap = BitmapFactory.decodeByteArray(byteArray,0,byteArray.size)
+                binding.imageView.setImageBitmap(bitmap)
+
+            }
+
+            cursor.close()
+
+        }
     }
 
 
@@ -37,7 +78,7 @@ class MainActivity2 : AppCompatActivity() {
 
         val artName = binding.artText.text.toString()
         val artistName = binding.artistText.text.toString()
-        val year = binding.yearText.toString()
+        val year = binding.yearText.text.toString()
 
         if (selectedPicture != null){
             val smallBitmap = makeSmallerBitmap(selectedBitmap!!,300)
@@ -65,7 +106,11 @@ class MainActivity2 : AppCompatActivity() {
                 e.printStackTrace()
             }
 
-            finish()
+            val intent = Intent(this,MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+
+            // finish()
 
 
         }else{
