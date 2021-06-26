@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
     }
 
-    // MENU
+    // OPTIONS MENU
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
 
         // INFLATE
@@ -37,4 +37,5 @@ class MainActivity : AppCompatActivity() {
 
         return super.onOptionsItemSelected(item)
     }
+    // END OPTIONS MENU
 }
